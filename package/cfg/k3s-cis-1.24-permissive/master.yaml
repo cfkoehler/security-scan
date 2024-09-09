@@ -149,13 +149,8 @@ groups:
 
 
       - id: 1.1.11
-        text: "Ensure that the etcd data directory permissions are set to 700 or more restrictive (Automated)"
-        audit: |
-          if [ "$(journalctl -m -u k3s | grep -m1 'Managed etcd cluster' | wc -l)" -gt 0 ]; then
-            stat -c permissions=%a /var/lib/rancher/k3s/server/db/etcd
-          else
-            echo "permissions=700"
-          fi
+        text: "Ensure that the etcd data directory permissions are set to 700 or more restrictive (Manual)"
+        audit: stat -c permissions=%a $etcddatadir
         tests:
           test_items:
             - flag: "permissions"
@@ -163,11 +158,13 @@ groups:
                 op: bitmask
                 value: "700"
         remediation: |
+          Not applicable for the non-etcd cluster. If running master only with no etcd role, this check is not applicable.
+          If controlplane and etcd roles are present on the same nodes but this check is warn then
           On the etcd server node, get the etcd data directory, passed as an argument --data-dir,
           from the command 'ps -ef | grep etcd'.
           Run the below command (based on the etcd data directory found above). For example,
-          chmod 700 /var/lib/etcd
-        scored: true
+          chmod 700 $etcddatadir
+        scored: false
 
       - id: 1.1.12
         text: "Ensure that the etcd data directory ownership is set to etcd:etcd (Automated)"
@@ -314,7 +311,7 @@ groups:
           Run the below command (based on the file location on your system) on the master node.
           For example,
           chmod -R 600 /var/lib/rancher/k3s/server/tls/*.key
-        scored: false
+        scored: true
 
   - id: 1.2
     text: "API Server"
@@ -333,7 +330,7 @@ groups:
           edit the K3s config file /etc/rancher/k3s/config.yaml and remove anything similar to below.
           kube-apiserver-arg:
             - "anonymous-auth=true"
-        scored: false
+        scored: true
 
       - id: 1.2.2
         text: "Ensure that the --token-auth-file parameter is not set (Automated)"
@@ -466,7 +463,7 @@ groups:
         scored: true
 
       - id: 1.2.10
-        text: "Ensure that the admission control plugin EventRateLimit is set (Automated)"
+        text: "Ensure that the admission control plugin EventRateLimit is set (Manual)"
         audit: "journalctl -m -u k3s | grep 'Running kube-apiserver' | tail -n1 | grep 'enable-admission-plugins'"
         tests:
           test_items:
@@ -502,7 +499,7 @@ groups:
         scored: true
 
       - id: 1.2.12
-        text: "Ensure that the admission control plugin AlwaysPullImages is set (Automated)"
+        text: "Ensure that the admission control plugin AlwaysPullImages is set (Manual)"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
         tests:
           test_items:
@@ -521,7 +518,7 @@ groups:
         scored: false
 
       - id: 1.2.13
-        text: "Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used (Automated)"
+        text: "Ensure that the admission control plugin SecurityContextDeny is set if PodSecurityPolicy is not used (Manual)"
         audit: "journalctl -m -u k3s | grep 'Running kube-apiserver' | tail -n1 | grep 'enable-admission-plugins'"
         tests:
           bin_op: or
@@ -821,7 +818,7 @@ groups:
         scored: true
 
       - id: 1.2.30
-        text: "Ensure that the --encryption-provider-config argument is set as appropriate (Automated)"
+        text: "Ensure that the --encryption-provider-config argument is set as appropriate (Manual)"
         audit: "journalctl -m -u k3s | grep 'Running kube-apiserver' | tail -n1 | grep 'encryption-provider-config'"
         tests:
           test_items:
@@ -835,7 +832,7 @@ groups:
         scored: false
 
       - id: 1.2.31
-        text: "Ensure that encryption providers are appropriately configured (Automated)"
+        text: "Ensure that encryption providers are appropriately configured (Manual)"
         audit: |
           ENCRYPTION_PROVIDER_CONFIG=$(journalctl -m -u k3s | grep 'Running kube-apiserver' | tail -n1 | grep -- --encryption-provider-config | sed 's%.*encryption-provider-config[= ]\([^ ]*\).*%\1%')
           if test -e $ENCRYPTION_PROVIDER_CONFIG; then grep -o 'providers\"\:\[.*\]' $ENCRYPTION_PROVIDER_CONFIG | grep -o "[A-Za-z]*" | head -2 | tail -1  | sed 's/^/provider=/'; fi
@@ -874,7 +871,7 @@ groups:
     text: "Controller Manager"
     checks:
       - id: 1.3.1
-        text: "Ensure that the --terminated-pod-gc-threshold argument is set as appropriate (Automated)"
+        text: "Ensure that the --terminated-pod-gc-threshold argument is set as appropriate (Manual)"
         audit: "journalctl -m -u k3s | grep 'Running kube-controller-manager' | tail -n1 | grep 'terminated-pod-gc-threshold'"
         tests:
           test_items:

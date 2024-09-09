@@ -39,7 +39,7 @@ groups:
         scored: true
 
       - id: 4.1.3
-        text: "If proxy kubeconfig file exists ensure permissions are set to 644 or more restrictive (Manual)"
+        text: "If proxy kubeconfig file exists ensure permissions are set to 644 or more restrictive (Automated)"
         audit: '/bin/sh -c ''if test -e $proxykubeconfig; then stat -c permissions=%a $proxykubeconfig; fi'' '
         tests:
           bin_op: or
@@ -105,7 +105,7 @@ groups:
 
       - id: 4.1.7
         text: "Ensure that the certificate authorities file permissions are set to 644 or more restrictive (Manual)"
-        audit: "check_cafile_permissions.sh"
+        audit: '/bin/sh -c ''if test -e $kubeletcafile; then stat -c permissions=%a $kubeletcafile; fi'' '
         tests:
           test_items:
             - flag: "permissions"
@@ -114,23 +114,23 @@ groups:
                 value: "644"
               set: true
         remediation: |
-          Run the following command to modify the file permissions of the
-          --client-ca-file chmod 644 <filename>
+          Run the below command (based on the file location on your system) on the each worker node.
+          For example,
+          chmod 644 $kubeletcafile
         scored: false
 
       - id: 4.1.8
-        text: "Ensure that the client certificate authorities file ownership is set to root:root (Manual)"
-        audit: "check_cafile_ownership.sh"
+        text: "Ensure that the client certificate authorities file ownership is set to root:root (Automated)"
+        audit: '/bin/sh -c ''if test -e $kubeletcafile; then stat -c %U:%G $kubeletcafile; fi'' '
         tests:
           test_items:
             - flag: root:root
               compare:
                 op: eq
                 value: root:root
-              set: true
         remediation: |
           Run the following command to modify the ownership of the --client-ca-file.
-          chown root:root <filename>
+          chown root:root $kubeletcafile
         scored: true
 
       - id: 4.1.9
@@ -230,7 +230,7 @@ groups:
         scored: true
 
       - id: 4.2.4
-        text: "Ensure that the --read-only-port argument is set to 0 (Manual)"
+        text: "Ensure that the --read-only-port argument is set to 0 (Automated)"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:
@@ -374,7 +374,7 @@ groups:
         scored: false
 
       - id: 4.2.10
-        text: "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate (Manual)"
+        text: "Ensure that the --tls-cert-file and --tls-private-key-file arguments are set as appropriate (Automated)"
         audit: "/bin/ps -fC $kubeletbin"
         audit_config: "/bin/cat $kubeletconf"
         tests:

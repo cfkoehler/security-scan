@@ -97,7 +97,7 @@ groups:
         scored: true
 
       - id: 1.1.7
-        text: "Ensure that the etcd pod specification file permissions are set to 600 or more restrictive (Automated)"
+        text: "Ensure that the etcd pod specification file permissions are set to 600 or more restrictive (Manual)"
         audit: "/bin/sh -c 'if test -e $etcdconf; then stat -c permissions=%a $etcdconf; fi'"
         tests:
           test_items:
@@ -106,13 +106,15 @@ groups:
                 op: bitmask
                 value: "600"
         remediation: |
+          If running master only with no etcd role, this check is Not applicable.
+          If controlplane and etcd roles are present on the same nodes but this check is warn then
           Run the below command (based on the file location on your system) on the control plane node.
           For example,
           chmod 600 $etcdconf
-        scored: true
+        scored: false
 
       - id: 1.1.8
-        text: "Ensure that the etcd pod specification file ownership is set to root:root (Automated)"
+        text: "Ensure that the etcd pod specification file ownership is set to root:root (Manual)"
         audit: "/bin/sh -c 'if test -e $etcdconf; then stat -c %U:%G $etcdconf; fi'"
         tests:
           test_items:
@@ -122,10 +124,12 @@ groups:
                 value: "root:root"
               set: true
         remediation: |
+          If running master only with no etcd role, this check is Not applicable.
+          If controlplane and etcd roles are present on the same nodes but this check is warn then
           Run the below command (based on the file location on your system) on the control plane node.
           For example,
           chown root:root $etcdconf
-        scored: true
+        scored: false
 
       - id: 1.1.9
         text: "Ensure that the Container Network Interface file permissions are set to 644 or more restrictive (Manual)"
@@ -157,6 +161,41 @@ groups:
           Run the below command (based on the file location on your system) on the control plane node.
           For example,
           chown root:root <path/to/cni/files>
+        scored: false
+
+      - id: 1.1.11
+        text: "Ensure that the etcd data directory permissions are set to 700 or more restrictive (Manual)"
+        audit: "stat -c permissions=%a $etcddatadir"
+        tests:
+          test_items:
+            - flag: "permissions"
+              compare:
+                op: bitmask
+                value: "700"
+              set: true
+        remediation: |
+          If running master only with no etcd role, this check is Not applicable.
+          If controlplane and etcd roles are present on the same nodes but this check is warn then
+          On the etcd server node, get the etcd data directory, passed as an argument --data-dir,
+          from the command 'ps -ef | grep etcd'.
+          Run the below command (based on the etcd data directory found above). For example,
+          chmod 700 $etcddatadir
+        scored: false
+
+      - id: 1.1.12
+        text: "Ensure that the etcd data directory ownership is set to etcd:etcd (Manual)"
+        type: "skip"
+        audit: "stat -c %U:%G $etcddatadir"
+        tests:
+          test_items:
+            - flag: "etcd:etcd"
+        remediation: |
+          If running master only with no etcd role, this check is Not applicable.
+          If controlplane and etcd roles are present on the same nodes but this check is warn then
+          On the etcd server node, get the etcd data directory, passed as an argument --data-dir,
+          from the command 'ps -ef | grep etcd'.
+          Run the below command (based on the etcd data directory found above).
+          For example, chown etcd:etcd $etcddatadir
         scored: false
 
       - id: 1.1.13
@@ -623,9 +662,8 @@ groups:
         scored: true
 
       - id: 1.2.19
-        text: "Ensure that the --audit-log-path argument is set (Automated)"
+        text: "Ensure that the --audit-log-path argument is set (Manual)"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
-        type: "skip"
         tests:
           test_items:
             - flag: "--audit-log-path"
@@ -635,12 +673,11 @@ groups:
           on the control plane node and set the --audit-log-path parameter to a suitable path and
           file where you would like audit logs to be written, for example,
           --audit-log-path=/var/log/apiserver/audit.log
-        scored: true
+        scored: false
 
       - id: 1.2.20
-        text: "Ensure that the --audit-log-maxage argument is set to 30 or as appropriate (Automated)"
+        text: "Ensure that the --audit-log-maxage argument is set to 30 or as appropriate (Manual)"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
-        type: "skip"
         tests:
           test_items:
             - flag: "--audit-log-maxage"
@@ -653,12 +690,11 @@ groups:
           on the control plane node and set the --audit-log-maxage parameter to 30
           or as an appropriate number of days, for example,
           --audit-log-maxage=30
-        scored: true
+        scored: false
 
       - id: 1.2.21
-        text: "Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate (Automated)"
+        text: "Ensure that the --audit-log-maxbackup argument is set to 10 or as appropriate (Manual)"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
-        type: "skip"
         tests:
           test_items:
             - flag: "--audit-log-maxbackup"
@@ -671,12 +707,11 @@ groups:
           on the control plane node and set the --audit-log-maxbackup parameter to 10 or to an appropriate
           value. For example,
           --audit-log-maxbackup=10
-        scored: true
+        scored: false
 
       - id: 1.2.22
-        text: "Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate (Automated)"
+        text: "Ensure that the --audit-log-maxsize argument is set to 100 or as appropriate (Manual)"
         audit: "/bin/ps -ef | grep $apiserverbin | grep -v grep"
-        type: "skip"
         tests:
           test_items:
             - flag: "--audit-log-maxsize"
@@ -688,7 +723,7 @@ groups:
           Edit the API server pod specification file $apiserverconf
           on the control plane node and set the --audit-log-maxsize parameter to an appropriate size in MB.
           For example, to set it as 100 MB, --audit-log-maxsize=100
-        scored: true
+        scored: false
 
       - id: 1.2.23
         text: "Ensure that the --request-timeout argument is set as appropriate (Automated)"
