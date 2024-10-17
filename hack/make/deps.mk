@@ -3,20 +3,20 @@ KIND_VERSION ?= 0.24.0
 KUBERNETES_VERSION ?= v$(KUBECTL_VERSION)
 
 # renovate: datasource=github-release-attachments depName=aquasecurity/kube-bench
-KUBE_BENCH_VERSION ?= v0.8.0
-# renovate: datasource=github-release-attachments depName=aquasecurity/kube-bench digestVersion=v0.8.0
-KUBE_BENCH_SUM_arm64 ?= 82256042da9d78bb1cf1726dc8c108459c3cdc34df6298349113f551bde0feff
-# renovate: datasource=github-release-attachments depName=aquasecurity/kube-bench digestVersion=v0.8.0
-KUBE_BENCH_SUM_amd64 ?= 8e8f083819678956b6c36623a6a0638741340397ffc209cd71a6b4907f2bb05e
+KUBE_BENCH_VERSION ?= v0.9.1
+# renovate: datasource=github-release-attachments depName=aquasecurity/kube-bench digestVersion=v0.9.1
+KUBE_BENCH_SUM_arm64 ?= 7dde8d149f2dfc33de4cf66786c34c1c0948f93ef2f23d624b66d00cccc74ac5
+# renovate: datasource=github-release-attachments depName=aquasecurity/kube-bench digestVersion=v0.9.1
+KUBE_BENCH_SUM_amd64 ?= ff2671d3c60d64763c2be6490798ea9856676c56e05efe3f781a6bc1c1fda713
 
 # renovate: datasource=github-release-attachments depName=vmware-tanzu/sonobuoy
-SONOBUOY_VERSION ?= v0.57.1
+SONOBUOY_VERSION ?= v0.57.2
 SONOBUOY_IMAGE ?= rancher/mirrored-sonobuoy-sonobuoy:$(SONOBUOY_VERSION)
 
-# renovate: datasource=github-release-attachments depName=vmware-tanzu/sonobuoy digestVersion=v0.57.1
-SONOBUOY_SUM_arm64 ?= b6665011ae337e51cd6032ebfc37a6818dc8481c6cf6f2692e109a08be908e49
-# renovate: datasource=github-release-attachments depName=vmware-tanzu/sonobuoy digestVersion=v0.57.1
-SONOBUOY_SUM_amd64 ?= 0fd3ae735ee25b6b37b713aadd4a836b53aa2b82c8e6ecad0c2359de046f8212
+# renovate: datasource=github-release-attachments depName=vmware-tanzu/sonobuoy digestVersion=v0.57.2
+SONOBUOY_SUM_arm64 ?= 2ecfb9f8d2c5f20f48600eb9aabf9416b03ad598ebe05c89d8731eceb83cba1a
+# renovate: datasource=github-release-attachments depName=vmware-tanzu/sonobuoy digestVersion=v0.57.2
+SONOBUOY_SUM_amd64 ?= 83e9fdd9293066b2793a2b31a3f12517f8c8318a149223515cef6bdc3a2d587c
 
 KUBECTL_VERSION ?= 1.28.12
 KUBECTL_SUM_arm64 ?= $(shell curl -L "https://dl.k8s.io/release/v$(KUBECTL_VERSION)/bin/linux/arm64/kubectl.sha256")
